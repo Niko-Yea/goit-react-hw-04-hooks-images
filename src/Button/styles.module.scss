@@ -1,0 +1,21 @@
+.Button {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+  padding: 10px;
+  border-radius: 3px;
+  background: #3f51b5;
+  border: none;
+  transition: 0.2s;
+
+  &:hover {
+    background: rgb(53, 167, 110);
+  }
+
+  &:active {
+    background: rgb(33, 147, 90);
+    box-shadow: 0 3px rgb(33, 147, 90)
+      inset;
+  }
+}
