@@ -11,6 +11,7 @@ const apiService = new ApiService();
 
 const ImageGallery = ({children, searchQuery, items, setItems}) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [responseArr, setResponseArr] = useState([])
 
   useEffect(() => {
     if (searchQuery === '') return;
@@ -31,6 +32,7 @@ const ImageGallery = ({children, searchQuery, items, setItems}) => {
     apiService.query = searchQuery;
     setIsLoading(true);
     const response = await apiService.fetchImg();
+    setResponseArr(response.hits)
     setItems(prevState => [...prevState, ...response.hits]);
     setIsLoading(false);
   }
@@ -50,7 +52,7 @@ const ImageGallery = ({children, searchQuery, items, setItems}) => {
         <Loader type="ThreeDots" color="#3f51b5" height={40} width={40} className={styles.loader}/>
       )}
 
-      {((items.length === 0 || items.length <12 || isLoading) ? '' : <Button onClick={onButtonClick} />)}
+      {((responseArr.length === 0 || responseArr.length < 12 || isLoading) ? '' : <Button onClick={onButtonClick} />)}
     </>
   );
 }
