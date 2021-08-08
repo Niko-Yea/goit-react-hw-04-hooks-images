@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -9,66 +9,50 @@ import styles from './styles.module.scss'
 
 const apiService = new ApiService();
 
-class ImageGallery extends Component {
-  state = {
-    apiResponse: [],
-    isLoading: false
-  }
+const ImageGallery = ({children, searchQuery, items, setItems}) => {
+  const [isLoading, setIsLoading] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    const prevQuery = prevProps.searchQuery;
-    const nextQuery = this.props.searchQuery;
+  useEffect(() => {
+    if (searchQuery === '') return;
+    apiService.resetPage();
+    setItems([]);
+    fetchImg();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery])
 
-    apiService.query = nextQuery;
-
-    if (prevQuery !== nextQuery) {
-      this.setState({
-        apiResponse: []
-      })
-      apiService.resetPage()
-      this.fetchImg()
-    }
-
+  useEffect(() => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
-  }
+  }, [items])
 
-  async fetchImg() {
-    this.setState({ isLoading: true })
+  const fetchImg = async function () {
+    apiService.query = searchQuery;
+    setIsLoading(true);
     const response = await apiService.fetchImg();
-
-    this.setState(prevState => {
-      const items = [...prevState.apiResponse, ...response.hits]
-      return {apiResponse: items}
-    })
-    this.props.apiResponse(this.state.apiResponse)
-    this.setState({ isLoading: false })
+    setItems(prevState => [...prevState, ...response.hits]);
+    setIsLoading(false);
   }
 
-  onButtonClick = () => {
+  const onButtonClick = () => {
     apiService.incrementPage()
-    this.fetchImg()
+    fetchImg();
   }
 
-  render() {
-    const { isLoading } = this.state;
-    const isEmpty = this.state.apiResponse.length;
-    return (
-      <>
-        <ul className={styles.ImageGallery}>
-          {this.props.children}
-        </ul>
+  return (
+    <>
+      <ul className={styles.ImageGallery}>
+        {children}
+      </ul>
 
-        {isLoading && (
-          <Loader type="ThreeDots" color="#3f51b5" height={40} width={40} className={styles.loader}/>
-        )}
+      {isLoading && (
+        <Loader type="ThreeDots" color="#3f51b5" height={40} width={40} className={styles.loader}/>
+      )}
 
-        {((isEmpty === 0 || isLoading) ? '' : <Button onClick={this.onButtonClick} />)}
-      </>
-    );
-  }
+      {((items.length === 0 || items.length <12 || isLoading) ? '' : <Button onClick={onButtonClick} />)}
+    </>
+  );
 }
 
 export default ImageGallery;

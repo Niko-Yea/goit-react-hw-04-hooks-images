@@ -1,45 +1,32 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styles from './styles.module.scss'
 
-class SearchbarForm extends Component {
-  state = {
-    inputValue: ''
+const SearchbarForm = ({onSubmit}) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleInputChange = (e) => {
+    setInputValue(e.currentTarget.value);
   }
 
-  handlerInputChange = (e) => {
-    const { name, value } = e.currentTarget;
-
-    this.setState({
-      [name]: value
-    })
-  }
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (this.state.inputValue.trim() === '') {
+    if (inputValue.trim() === '') {
       return;
     }
 
-    this.props.onSubmit(this.state);
-    this.formReset();
+    onSubmit(inputValue);
+    setInputValue('');
   }
-
-  formReset = () => {
-    this.setState({inputValue: ''})
-  }
-
-  render() {
-    const { inputValue } = this.state;
 
     return (
-      <form onSubmit={this.handleSubmit} className={styles.SearchForm}>
+      <form onSubmit={handleSubmit} className={styles.SearchForm}>
         <button type="submit" className={styles.SearchFormButton}>
           <span className={styles.SearchFormButtonLabel}>Search</span>
         </button>
 
         <input
-          onChange={this.handlerInputChange}
+          onChange={handleInputChange}
           value={inputValue}
           name='inputValue'
           className={styles.SearchFormInput}
@@ -51,6 +38,5 @@ class SearchbarForm extends Component {
       </form>
   );
   }
-}
 
 export default SearchbarForm;

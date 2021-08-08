@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 import Searchbar from "./Searchbar/Searchbar";
 import SearchbarForm from "./SearcbarForm/SearchbarForm";
@@ -8,52 +8,32 @@ import Modal from './Modal/Modal';
 
 import styles from './styles.module.scss';
 
-class App extends Component {
-  state = {
-    searchQuery: '',
-    items: [],
-    showModal: false,
-    modalImg: ''
+const App = () => {
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [items, setItems] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImg, setModalImg] = useState('');
+
+  const toggleModal = () => {
+    setShowModal(!showModal)
   }
 
-  formSubmitHandler = ({inputValue}) => {
-    this.setState({ searchQuery: inputValue })
-  }
+  return (
+    <div className={styles.App}>
+      <Searchbar>
+        <SearchbarForm onSubmit={setSearchQuery} />
+      </Searchbar>
 
-  apiResponseHandler = (apiResponse) => {
-    this.setState({ items: apiResponse })
-  }
+      <ImageGallery searchQuery={searchQuery} setItems={setItems} items={items}>
+        {items.map(item =>
+          <ImageGalleryItem item={item} key={item.id} showModal={toggleModal} getLargeImg={setModalImg}/>
+        )}
+      </ImageGallery>
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }))
-  }
-
-  getLargeImg = (item) => {
-    this.setState({
-      modalImg: item
-    })
-  }
-
-  render() {
-    const {searchQuery, showModal, modalImg, items} = this.state
-    return (
-      <div className={styles.App}>
-        <Searchbar>
-          <SearchbarForm onSubmit={this.formSubmitHandler} />
-        </Searchbar>
-
-        <ImageGallery searchQuery={searchQuery} apiResponse={this.apiResponseHandler}>
-          {items.map(item =>
-            <ImageGalleryItem item={item} key={item.id} showModal={this.toggleModal} getLargeImg={this.getLargeImg}/>
-          )}
-        </ImageGallery>
-
-        {(showModal && <Modal item={modalImg} onClose={this.toggleModal} />)}
-      </div>
-    );
-  }
+      {(showModal && <Modal largeImg={modalImg} onClose={toggleModal} />)}
+    </div>
+  );
 }
 
 export default App;
